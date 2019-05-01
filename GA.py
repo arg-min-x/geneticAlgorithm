@@ -8,10 +8,12 @@ import random
 
 
 class genticAlgorithm():
-    def __init__(self, input_shape, num_classes):
+    def __init__(self, input_shape, num_classes, gene_class, network_class):
         self.input_shape = input_shape  # shape of the input layer to the netowork
         self.num_classes = num_classes  # number of classes to predict
         self.pop = []  # The current population of genes
+        self.gene_class = gene_class
+        self.network_class = network_class
 
     def get_pop_fitness(self):
         """"
@@ -35,6 +37,13 @@ class genticAlgorithm():
         Mutate the genes in the new generation
         :return:
         """
+
+    def main(self, pop_num=5):
+        """
+
+        :return:
+        """
+        for
 
 class networkGenesMnist:
     def __init__(self):
