@@ -14,11 +14,16 @@ class genticAlgorithm():
         self.pop = []  # The current population of genes
         self.gene_class = gene_class
         self.network_class = network_class
-
+        self.fitness = []
     def get_pop_fitness(self):
         """"
         Get the fitness of the population
         """
+        for genes, ii in zip(self.pop, range(len(self.pop))):
+            if self.fitness[ii] < 0:
+                network = self.network_class()
+                inputs, outputs = network.getNetwork(genes)
+                self.fitness[ii] = network.testFitness(inputs, outputs)
 
     def select_mating_pool(self):
         """
@@ -43,31 +48,75 @@ class genticAlgorithm():
 
         :return:
         """
-        for
+        num_kill = 1
+
+        # Get random genes to fill out the population
+        for ii in range(pop_num):
+            genes = self.gene_class()
+            genes.getRandomGenes()
+            self.pop.append(genes)
+
+        # Initialize fitness
+        self.fitness = [-1 for ii in range(pop_num)]
+
+        # main loop
+        for ii in range(4):
+            # get the fitness of the population
+            self.get_pop_fitness()
+
+            # sort fitness and genes
+            sort_inds = list(np.argsort(-np.array(self.fitness)))
+            self.fitness = [self.fitness[ii] for ii in sort_inds]
+            self.pop = [self.pop[ii] for ii in sort_inds]
+            print(self.fitness)
+
+            # delete the lowest fitness genes and
+            self.fitness[-1] = -1
+            self.pop[-1].mutateGene()
+
 
 class networkGenesMnist:
     def __init__(self):
         self.input_shape = (28, 28, 1)
-        self.num_layers = []
-        self.filters = []
-        self.kernel_size = []
         self.output_size = 10
         self.dense_size = 32
+        self.m_para = {'filters': [],
+                       'kernel_size': [],
+                       'num_layers': []}
+        self.m_para_r = {'filters': (4, 9),
+                         'kernel_size': (1, 3),
+                         'num_layers': (1, 3)}
 
     def getRandomGenes(self):
         """
         :return:
         """
-        self.num_layers = random.randint(1, 4)
-        for ii in range(self.num_layers):
-            self.filters.append(random.randint(4, 9))
-        self.kernel_size = random.randint(1, 5)
+        self.m_para["num_layers"] = random.randint(*self.m_para_r["num_layers"])
+        for ii in range(self.m_para_r["num_layers"][1]):
+            self.m_para["filters"].append(
+                random.randint(*self.m_para_r["filters"]))
+        self.m_para["kernel_size"] = random.randint(
+            *self.m_para_r["kernel_size"])
 
     def mutateGene(self):
         """
 
         :return:
         """
+        # randomly chooses a gene to mutate
+        mut_gene = random.choice(list(self.m_para.keys()))
+        print(mut_gene)
+        print(self.m_para[mut_gene])
+        if mut_gene == 'filters':
+            self.m_para[mut_gene] = []
+            print(range(self.m_para_r["num_layers"][1]))
+            for ii in range(self.m_para_r["num_layers"][1]):
+                self.m_para[mut_gene].append(
+                    random.randint(*self.m_para_r[mut_gene]))
+        else:
+            self.m_para[mut_gene] = random.randint(*self.m_para_r[mut_gene])
+        print(self.m_para[mut_gene])
+        return 0
 
     def crossOverGenes(self, mom, dad):
         """
@@ -114,11 +163,13 @@ class mnistGenetic:
         :return:
         """
         inputs = Input(shape=genes.input_shape)
-        for ii in range(genes.num_layers):
+        for ii in range(genes.m_para["num_layers"]):
             if ii == 0:
-                x = Conv2D(filters=genes.filters[ii], kernel_size=genes.kernel_size)(inputs)
+                x = Conv2D(filters=genes.m_para["filters"][ii],
+                           kernel_size=genes.m_para["kernel_size"])(inputs)
             else:
-                x = Conv2D(filters=genes.filters[ii], kernel_size=genes.kernel_size)(x)
+                x = Conv2D(filters=genes.m_para["filters"][ii],
+                           kernel_size=genes.m_para["kernel_size"])(x)
             x = BatchNormalization()(x)
             x = Activation(activation='relu')(x)
             x = MaxPooling2D()(x)
@@ -143,6 +194,7 @@ class mnistGenetic:
 
         model.fit(x_train,
                   y_train,
-                  validation_data=(x_test, y_test))  # starts training
+                  validation_data=(x_test, y_test),
+                  verbose=0)  # starts training
 
-        return model.history.history['val_acc']
+        return model.history.history['val_acc'][0]

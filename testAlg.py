@@ -9,6 +9,10 @@ import numpy as np
 import logging
 from GA import *
 
+ga = genticAlgorithm((28, 28), 10, networkGenesMnist, mnistGenetic)
+fitness = ga.main(pop_num=3)
+
+
 
 # filters = [8, 8, 8]
 # kernel_size = 2
@@ -20,11 +24,13 @@ from GA import *
 #                      kernel_size=kernel_size,
 #                      output_size=10,
 #                      dense_size=32)
-genes = networkGenesMnist()
-genes.getRandomGenes()
-mnist_class = mnistGenetic()
-inputs, outputs = mnist_class.getNetwork(genes)
-mnist_class.testFitness(inputs, outputs)
+# genes = networkGenesMnist()
+# genes.getRandomGenes()
+# genes.mutateGene()
+# print(genes.m_para['filters'])
+# mnist_class = mnistGenetic()
+# inputs, outputs = mnist_class.getNetwork(genes)
+# mnist_class.testFitness(inputs, outputs)
 # inputs, outputs = getNetwork(genes)
 #
 # accuracy = testFitness(inputs, outputs, get_mnist_mlp)
